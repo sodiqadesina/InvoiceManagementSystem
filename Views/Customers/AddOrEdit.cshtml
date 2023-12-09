@@ -1,0 +1,79 @@
+﻿@model WebApplication1.Models.CustomerViewModel
+
+@{
+    var isEditMode = Model.CustomerId > 0;
+    ViewData["Title"] = isEditMode ? "Edit Customer" : "Add Customer";
+}
+
+<div class="container mt-5 out-cont mx-auto">
+
+            <h2>@ViewData["Title"]</h2>
+
+            <form asp-action="AddOrEdit" method="post" class="customer-form p-2">
+                @if (isEditMode)
+                {
+                    <input type="hidden" asp-for="CustomerId" />
+                }
+
+                 <div asp-validation-summary="All" class="text-danger"></div>
+
+                <div class="form-group d-flex pb-3">
+                    <label asp-for="Name">Name:</label>
+                    <input asp-for="Name" class="form-control ms-auto" />
+                </div>
+                    <span asp-validation-for="Name" class="text-danger"></span>
+
+                <div class="form-group d-flex pb-3">
+                    <label asp-for="Address1">Address1:</label>
+                    <input asp-for="Address1" class="form-control ms-auto" />
+                </div>
+
+                <div class="form-group d-flex pb-3">
+                    <label asp-for="Address2">Address2:</label>
+                    <input asp-for="Address2" class="form-control ms-auto" />
+                </div>
+                    <span asp-validation-for="Address2" class="text-danger  px-5"></span>
+
+                <div class="form-group d-flex pb-3">
+                    <label asp-for="City">City:</label>
+                    <input asp-for="City" class="form-control ms-auto" />
+                </div>
+
+                <div class="form-group d-flex pb-3">
+                    <label asp-for="ProvinceOrState">ProvinceOrState:</label>
+                    <input asp-for="ProvinceOrState" class="form-control ms-auto" />
+                </div>
+
+                <div class="form-group d-flex pb-3">
+                    <label asp-for="ZipOrPostalCode">ZipOrPostalCode:</label>
+                    <input asp-for="ZipOrPostalCode" class="form-control ms-auto" />
+                </div>
+
+
+                <div class="form-group d-flex pb-3">
+                    <label asp-for="Phone">Phone:</label>
+                    <input asp-for="Phone" class="form-control ms-auto" />
+                </div>
+
+                <div class="form-group d-flex pb-3">
+                    <label asp-for="ContactLastName">ContactLastName:</label>
+                    <input asp-for="ContactLastName" class="form-control ms-auto" />
+                </div>
+
+                <div class="form-group d-flex pb-3">
+                    <label asp-for="ContactFirstName">ContactFirstName:</label>
+                    <input asp-for="ContactFirstName" class="form-control ms-auto" />
+                </div>
+
+                <div class="form-group d-flex pb-3">
+                    <label asp-for="ContactEmail">ContactEmail:</label>
+                    <input asp-for="ContactEmail" class="form-control ms-auto" />
+                </div>
+
+                <div class="form-actions d-flex form-submit ">
+                    <button type="submit" class="btn btn-primary">@ViewData["Title"]</button>
+                    <a asp-action="Index" class="btn btn-cus btn-primary">Cancel</a>
+                </div>
+            </form>
+
+</div>
