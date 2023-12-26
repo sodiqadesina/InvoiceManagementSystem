@@ -11,7 +11,7 @@ builder.Services.AddControllersWithViews();
 
 var connectstr = builder.Configuration.GetConnectionString("CourseConnectionString");
 
-builder.Services.AddDbContext<CustormerDbContext>(option => option.UseSqlServer(connectstr));
+builder.Services.AddDbContext<CustomerDbContext>(option => option.UseSqlServer(connectstr));
 
 
 // dependacy injection so we can access the current Httpcontext ouside the controller 

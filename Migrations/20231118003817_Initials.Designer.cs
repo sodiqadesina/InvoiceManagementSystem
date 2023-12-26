@@ -11,7 +11,7 @@ using WebApplication1.Entities;
 
 namespace WebApplication1.Migrations
 {
-    [DbContext(typeof(CustormerDbContext))]
+    [DbContext(typeof(CustomerDbContext))]
     [Migration("20231118003817_Initials")]
     partial class Initials
     {

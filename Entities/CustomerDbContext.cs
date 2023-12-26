@@ -2,12 +2,14 @@
 
 namespace WebApplication1.Entities
 {
-    public class CustormerDbContext : DbContext
+    public class CustomerDbContext : DbContext
     {
-        public CustormerDbContext(DbContextOptions<CustormerDbContext> options)
+        public CustomerDbContext(DbContextOptions<CustomerDbContext> options)
           : base(options)
         {
         }
+
+
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<InvoiceLineItem> InvoiceLineItems { get; set; }

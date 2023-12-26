@@ -10,7 +10,7 @@ using WebApplication1.Entities;
 
 namespace WebApplication1.Migrations
 {
-    [DbContext(typeof(CustormerDbContext))]
+    [DbContext(typeof(CustomerDbContext))]
     partial class CustormerDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

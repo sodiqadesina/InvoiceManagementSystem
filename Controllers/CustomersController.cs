@@ -93,9 +93,9 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPost("add-or-edit/{id?}")]
-        [ValidateAntiForgeryToken]
         public IActionResult AddOrEdit(int? id, CustomerViewModel model)
         {
+          
             if (ModelState.IsValid)
             {
                 Customer customer = id.HasValue ?
@@ -125,7 +125,7 @@ namespace WebApplication1.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // If we get here, something went wrong; re-display form.
+            // If we get here, something went wrong; re-displaying the  form.
             return View(model);
         }
 
