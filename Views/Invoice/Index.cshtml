@@ -20,7 +20,22 @@
             <p>Address: @Model.CompanyAddress</p>
         </div>
         <div class="col text-end">
-            <p>Terms: @Model.PaymentTerms</p>
+            <p id="paymentTermsDescription">
+                Terms:
+                @if (Model.SelectedInvoiceId.HasValue && Model.Invoices.Any())
+                {
+                    var selectedInvoice = Model.Invoices.FirstOrDefault(i => i.InvoiceId == Model.SelectedInvoiceId.Value);
+                    if (selectedInvoice != null)
+                    {
+                        @selectedInvoice.PaymentTermsDescription
+                    }
+                    else
+                    {
+                        @:N/A
+                    }
+                }
+                days
+            </p>
         </div>
     </div>
 
@@ -37,27 +52,29 @@
                 <tbody>
                     @foreach (var invoice in Model.Invoices)
                     {
-                        <tr class="clickable-row @(Model.SelectedInvoiceId == invoice.InvoiceId ? "highlighted" : "")" data-id="@invoice.InvoiceId">
+                        <tr class="clickable-row @(Model.SelectedInvoiceId == invoice.InvoiceId ? "highlighted" : "")"
+                            data-id="@invoice.InvoiceId"
+                            data-payment-terms="@invoice.PaymentTermsDescription">
                             <td>@invoice.InvoiceId</td>
                             <td>@invoice.DueDate.ToString("MM/dd/yyyy")</td>
                             <td>@invoice.AmountPaid</td>
                         </tr>
                     }
                 </tbody>
-
             </table>
 
             <!-- Form to add new invoice -->
-            <form asp-action="AddInvoice">
-                <input type="date" class="form-control mb-2" name="InvoiceDate" />
-                <select class="form-control mb-2" name="PaymentTermsId">
-                    @foreach (var term in Model.PaymentTerms)
+            <form asp-action="AddInvoice" asp-controller="Invoice" asp-route-customerId="@ViewBag.CustomerId">
+                <input type="date" class="form-control mb-2" name="InvoiceDate" required />
+                <select class="form-control mb-2" name="PaymentTermsId" required>
+                    @foreach (var term in Model.AllPaymentTerms)
                     {
                         <option value="@term.PaymentTermsId">@term.Description</option>
                     }
                 </select>
                 <button type="submit" class="btn btn-primary">Add invoice</button>
             </form>
+
         </div>
 
         <!-- Line items  -->
@@ -69,12 +86,12 @@
 
 
                 <!-- Form to add new line item -->
-                <form asp-action="AddLineItem">
-                    <input type="hidden" name="InvoiceId" value="@Model.SelectedInvoiceId" />
-                    <input type="text" class="form-control mb-2" name="Description" placeholder="Description" />
-                    <input type="number" class="form-control mb-2" name="Amount" placeholder="Amount" />
-                    <button type="submit" class="btn btn-primary">Add line item</button>
-                </form>
+            <form asp-action="AddLineItem" asp-controller="Invoice" asp-route-customerId="@ViewBag.CustomerId" asp-route-selectedInvoiceId="@Model.SelectedInvoiceId">
+                <input type="hidden" name="InvoiceId" value="@Model.SelectedInvoiceId" />
+                <input type="text" class="form-control mb-2" name="Description" placeholder="Description" required />
+                <input type="number" class="form-control mb-2" name="Amount" placeholder="Amount" required />
+                <button type="submit" class="btn btn-primary">Add line item</button>
+            </form>
         </div>
     </div>
 </div>
@@ -85,12 +102,12 @@
             var rows = document.querySelectorAll(".clickable-row");
             rows.forEach(function (row) {
                 row.addEventListener("click", function () {
-                    // Remove highlighting from all rows
+                    // Removing highlighting from all rows
                     rows.forEach(function (r) {
                         r.classList.remove("highlighted");
                     });
 
-                    // Highlight the clicked row
+                    // Highlighting the clicked row
                     this.classList.add("highlighted");
 
                     var invoiceId = this.dataset.id;
@@ -100,6 +117,16 @@
                             document.getElementById('lineItemsContainer').innerHTML = html;
                         })
                         .catch(error => console.error('Error fetching line items:', error));
+                    // Updating the hidden input for InvoiceId in the form
+                    var selectedInvoiceInput = document.querySelector('form input[name="InvoiceId"]');
+                    if (selectedInvoiceInput) {
+                        selectedInvoiceInput.value = invoiceId;
+                    }
+
+                    // Retrieving the payment terms description from the data attribute and Update the payment terms description
+                    var paymentTermsDescription = this.getAttribute('data-payment-terms') || 'N/A';
+                    document.getElementById('paymentTermsDescription').innerText = 'Terms: ' + paymentTermsDescription + ' days';
+
                 });
             });
         });

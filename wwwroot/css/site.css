@@ -96,3 +96,18 @@ body {
     opacity: 0.5;
     color: black
 }
+
+.input-container input {
+    /* Adjust the width as needed */
+    width: 100%;
+    
+}
+
+.input-group {
+ width: 70%
+}
+
+.input-validation-error {
+    border: 2px solid red;
+    background-color: #ffe6e6; /* A light red background color */
+}

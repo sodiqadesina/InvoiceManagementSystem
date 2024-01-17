@@ -3,6 +3,7 @@ using WebApplication1.Models;
 using WebApplication1.Services;
 using System.Collections.Generic;
 using System.Linq;
+using WebApplication1.Entities;
 
 namespace WebApplication1.Controllers
 {
@@ -16,32 +17,31 @@ namespace WebApplication1.Controllers
         }
 
         [HttpGet]
-        public IActionResult Index(int customerId, string alphaFilter)
+        public IActionResult Index(int customerId, string alphaFilter, int? selectedInvoiceId = null)
         {
             var customer = _service.GetCustomerById(customerId);
             if (customer == null)
             {
-                // Handling the null case, e.g., return a NotFound view
                 return NotFound();
             }
-
+            var allPaymentTerms = _service.GetAllPaymentTerms();
             var invoices = _service.GetInvoicesForCustomer(customerId).ToList();
             var invoiceViewModels = new List<InvoiceViewModel>();
             var paymentTermsList = new List<PaymentTermsViewModel>();
 
+
             foreach (var invoice in invoices)
             {
                 var paymentTerms = _service.GetPaymentTermsByInvoiceId(invoice.InvoiceId);
-                var invoiceViewModel = new InvoiceViewModel
+                invoiceViewModels.Add(new InvoiceViewModel
                 {
                     InvoiceId = invoice.InvoiceId,
                     DueDate = invoice.InvoiceDate?.AddDays(paymentTerms.DueDays) ?? DateTime.MinValue,
                     AmountPaid = (decimal)(invoice.PaymentTotal ?? 0),
-                    PaymentTermsDescription = paymentTerms.Description,
+                    PaymentTermsDescription = paymentTerms.DueDays,
                     PaymentTermsId = paymentTerms.PaymentTermsId
-                };
+                });
 
-                // Adding payment terms to the list if not already included
                 if (!paymentTermsList.Any(pt => pt.PaymentTermsId == paymentTerms.PaymentTermsId))
                 {
                     paymentTermsList.Add(new PaymentTermsViewModel
@@ -51,11 +51,11 @@ namespace WebApplication1.Controllers
                         DueDays = paymentTerms.DueDays
                     });
                 }
-
-                invoiceViewModels.Add(invoiceViewModel);
             }
 
-            int? selectedInvoiceId = invoices.Any() ? invoices.First().InvoiceId : (int?)null;
+            // If selectedInvoiceId is not provided, default to the first invoice in the list
+            selectedInvoiceId = selectedInvoiceId ?? invoices.FirstOrDefault()?.InvoiceId;
+
             var selectedInvoiceLineItems = selectedInvoiceId.HasValue
                 ? _service.GetLineItemsByInvoiceId(selectedInvoiceId.Value)
                     .Select(li => new InvoiceLineItemViewModel
@@ -70,18 +70,24 @@ namespace WebApplication1.Controllers
                 CompanyName = customer.Name,
                 CompanyAddress = customer.Address1 + ", " + customer.City,
                 CompanyCity = customer.City,
-                PaymentTerms = paymentTermsList, // This is now a list
+                PaymentTerms = paymentTermsList,
                 SelectedInvoiceId = selectedInvoiceId,
                 Invoices = invoiceViewModels,
-                SelectedInvoiceLineItems = selectedInvoiceLineItems
+                SelectedInvoiceLineItems = selectedInvoiceLineItems,
+                // payment terms
+                 AllPaymentTerms = allPaymentTerms.Select(pt => new PaymentTermsViewModel
+                 {
+                     PaymentTermsId = pt.PaymentTermsId,
+                     Description = pt.Description,
+                     DueDays = pt.DueDays
+                 }).ToList()
             };
 
-            // Add the current filter to the ViewBag so it can be used in the View
             ViewBag.CurrentFilter = alphaFilter;
+            ViewBag.CustomerId = customerId;
 
             return View(viewModel);
         }
-
 
         [HttpGet]
         public async Task<IActionResult> GetLineItems(int invoiceId)
@@ -108,7 +114,40 @@ namespace WebApplication1.Controllers
 
 
 
+        [HttpPost]
+        public IActionResult AddInvoice(int customerId, DateTime invoiceDate, int paymentTermsId)
+        {
+            //  logic to create a new invoice
+            var newInvoice = new Invoice
+            {
+                InvoiceDate = invoiceDate,
+                PaymentTermsId = paymentTermsId,
+                CustomerId = customerId // Assuming this is the foreign key to Customer
+            };
+            _service.AddInvoice(newInvoice);
 
+            // Redirecting back to the Index with the customerId and newly added invoiceId
+            return RedirectToAction("Index", new { customerId = customerId, selectedInvoiceId = newInvoice.InvoiceId });
+        }
 
+        [HttpPost]
+        public IActionResult AddLineItem(int invoiceId, string description, decimal amount, int customerId)
+        {
+            // logic to create a new line item
+            var newLineItem = new InvoiceLineItem
+            {
+                InvoiceId = invoiceId,
+                Description = description,
+                Amount = (double?)amount
+            };
+            _service.AddLineItem(newLineItem);
+
+        return RedirectToAction("Index", new { customerId = customerId, selectedInvoiceId = invoiceId });
+        }
+
+        public object Index(int customerId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

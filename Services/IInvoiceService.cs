@@ -6,6 +6,7 @@ namespace WebApplication1.Services
     {
         IEnumerable<Invoice> GetInvoicesForCustomer(int customerId);
 
+        IEnumerable<PaymentTerms> GetAllPaymentTerms();
         Customer GetCustomerById(int customerId);
         Invoice GetInvoiceById(int invoiceId);
         void AddInvoice(Invoice invoice);

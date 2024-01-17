@@ -5,8 +5,8 @@ namespace WebApplication1.Services
 {
     public class InvoiceService : IInvoiceService
     {
-        private readonly CustormerDbContext _context;
-        public InvoiceService(CustormerDbContext context)
+        private readonly CustomerDbContext _context;
+        public InvoiceService(CustomerDbContext context)
         {
             _context = context;
         }
@@ -15,6 +15,11 @@ namespace WebApplication1.Services
         {
             return _context.Invoices.Where(i => i.CustomerId == customerId).ToList();
 
+        }
+
+        public IEnumerable<PaymentTerms> GetAllPaymentTerms()
+        {
+            return _context.PaymentTerms.ToList();
         }
 
         public Customer GetCustomerById(int customerId)

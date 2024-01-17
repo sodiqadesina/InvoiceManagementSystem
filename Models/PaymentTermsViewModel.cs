@@ -4,6 +4,6 @@
     {
         public int PaymentTermsId { get; set; }
         public string Description { get; set; }
-        public int DueDays { get; set; }
+        public int? DueDays { get; set; }
     }
 }

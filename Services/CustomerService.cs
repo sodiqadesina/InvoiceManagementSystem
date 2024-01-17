@@ -5,9 +5,9 @@ namespace WebApplication1.Services
 {
     public class CustomerService : ICustomerService
     {
-        private readonly CustormerDbContext _context;
+        private readonly CustomerDbContext _context;
 
-        public CustomerService(CustormerDbContext context)
+        public CustomerService(CustomerDbContext context)
         {
             _context = context;
         }
